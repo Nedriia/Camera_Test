@@ -484,6 +484,11 @@ MonoBehaviour:
   offsetRotation: {x: 0, y: 0, z: 0}
   offsetVerticalFocus: 1.5
   offsetVertical: {x: 0, y: 2.45, z: 0}
+  threesholdMovement: 0.05
+  zoomForce: 8
+  minFov: 10
+  maxFov: 100
+  decreaseZoomForce: 0.05
 --- !u!1 &1569662141
 GameObject:
   m_ObjectHideFlags: 0
