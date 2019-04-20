@@ -94,15 +94,22 @@ public class Camera_Behavior : MonoBehaviour
             {
                 transform.position = player.position + offsetRotation;
                 transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+
                 if (Input.GetAxis("Mouse X") < 0)
                 {
-                    yRotation += Input.GetAxis("Mouse X");
-                    player.transform.eulerAngles = new Vector3(0, yRotation, 0);
+                    offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
+                    transform.position = player.position + offsetRotation;
+                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));       
+                    //yRotation += Input.GetAxis("Mouse X") * turnSpeed;
+                    //player.transform.eulerAngles = new Vector3(0, yRotation, 0);                          
                 }
                 else if (Input.GetAxis("Mouse X") > 0)
                 {
-                    yRotation += Input.GetAxis("Mouse X");
-                    player.transform.eulerAngles = new Vector3(0, yRotation, 0);
+                    offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
+                    transform.position = player.position + offsetRotation;
+                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+                    //yRotation += Input.GetAxis("Mouse X") * turnSpeed;
+                    //player.transform.eulerAngles = new Vector3(0, yRotation, 0);
                 }
             }
             else
