@@ -475,20 +475,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe21e3bf4ce5aa346833857c7a5cc87d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 39659785}
   velocity: {x: 0, y: 0, z: 0}
-  smoothTime: 0.12
+  smoothTime: 0.2
   offset: {x: 0, y: 2.45, z: -3.81}
   player: {fileID: 39659785}
   turnSpeed: 5
   offsetRotation: {x: 0, y: 0, z: 0}
   offsetVerticalFocus: 1.5
-  offsetVertical: {x: 0, y: 2.45, z: 0}
+  offsetVertical: {x: 0, y: 5, z: 0}
   threesholdMovement: 0.05
   zoomForce: 8
   minFov: 10
   maxFov: 100
   decreaseZoomForce: 0.05
+  delay: 0.11
 --- !u!1 &1569662141
 GameObject:
   m_ObjectHideFlags: 0
