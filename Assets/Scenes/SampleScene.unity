@@ -477,7 +477,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   velocity: {x: 0, y: 0, z: 0}
   smoothTime: 0.2
-  offset: {x: 0, y: 2.45, z: -3.81}
   player: {fileID: 39659785}
   turnSpeed: 5
   offsetRotation: {x: 0, y: 0, z: 0}
@@ -489,6 +488,9 @@ MonoBehaviour:
   maxFov: 100
   decreaseZoomForce: 0.05
   delay: 0.11
+  cameraModeDelay: 0
+  rotationDiff: 0
+  distance: 0
 --- !u!1 &1569662141
 GameObject:
   m_ObjectHideFlags: 0
