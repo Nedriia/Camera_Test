@@ -491,6 +491,10 @@ MonoBehaviour:
   cameraModeDelay: 0
   rotationDiff: 0
   distance: 0
+  startY: 0
+  isMoving: 0
+  timer: 0
+  timerBeforeTrigger: 0.2
 --- !u!1 &1569662141
 GameObject:
   m_ObjectHideFlags: 0

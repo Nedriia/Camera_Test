@@ -41,18 +41,26 @@ public class Camera_Behavior : MonoBehaviour
     public float distance;
     public float startY;
 
+    public bool isMoving;
+    public float timer, timerBeforeTrigger;
+
     public void Start()
     {
         playerRb = player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonCharacter>();
         offsetRotation = transform.position;
         transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
         distance = Vector3.Distance(player.position, transform.position);
+        //TODO: Change that
         startY = transform.position.y;
     }
 
     public void Update()
     {
         Debug.DrawRay(new Vector3(player.transform.position.x, player.transform.position.y + 0.5f, player.transform.position.z), player.transform.TransformDirection(Vector3.forward) *  playerRb.m_Rigidbody.velocity.magnitude, Color.yellow);
+
+        float playerAngle = AngleOnXZPlane(player);
+        float cameraAngle = AngleOnXZPlane(transform);
+        rotationDiff = Mathf.DeltaAngle(cameraAngle, playerAngle);
     }
 
     // Update is called once per frame
@@ -78,35 +86,7 @@ public class Camera_Behavior : MonoBehaviour
                 transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
             }
         }
-        else
-        {
-            if (Input.GetAxis("Mouse X") == 0 && player.GetComponent<Rigidbody>().velocity.magnitude >= threesholdMovement)
-            {
-                float playerAngle = AngleOnXZPlane(player);
-                float cameraAngle = AngleOnXZPlane(transform);
-                rotationDiff = Mathf.DeltaAngle(cameraAngle, playerAngle);
 
-                if (rotationDiff > -40 || rotationDiff <40)
-                {
-                    player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = player.transform;
-                    var positionCamera = player.position - (player.forward * distance);
-                    positionCamera = new Vector3(positionCamera.x, positionCamera.y + startY, positionCamera.z);                  
-                    transform.position = Vector3.SmoothDamp(transform.position, positionCamera, ref velocity, smoothTime);
-                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
-                } 
-                else
-                {
-                    //We need to rotate the camera here not before
-                    //Before : Follow the play but with a latence in the rotation
-                }
-            }
-            else
-            {
-                player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = Camera.main.transform;
-                transform.position = Vector3.SmoothDamp(transform.position, player.position + offsetRotation, ref velocity, smoothTime);
-                transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
-            }
-        }
         RotationControl();
 
         Zoom();
@@ -138,48 +118,58 @@ public class Camera_Behavior : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        if(Input.GetKeyDown(KeyCode.Mouse1))
+        //TODO: Can move to the vertical
+        //TODO: Don't use the clamp method anymore, but use collision detection of the floor
+        //TODO: Does Get Component are really needed
+        player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = Camera.main.transform;
+
+        if (player.GetComponent<Rigidbody>().velocity.magnitude <= threesholdMovement)
         {
-            offsetVertical = new Vector3(0, transform.position.y, 0);      
-        }
-        if (Input.GetKey(KeyCode.Mouse1))
-        {
-            player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = player.transform;
+            /*player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = player.transform;
             offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
             offsetVertical = Quaternion.AngleAxis(Input.GetAxis("Mouse Y") * turnSpeed, Vector3.left) * offsetVertical;
             offsetVertical.y = Mathf.Clamp(offsetVertical.y, 0.1f, 15);
-            
-            var newPosition = new Vector3(player.position.x + offsetRotation.x,offsetVertical.y,player.position.z + offsetRotation.z);
+
+            var newPosition = new Vector3(player.position.x + offsetRotation.x, offsetVertical.y, player.position.z + offsetRotation.z);
             transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
-            transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+            transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));*/
         }
         else
         {
-            player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = Camera.main.transform;
-            if (player.GetComponent<Rigidbody>().velocity.magnitude <= threesholdMovement)
+            if (Input.GetAxis("Mouse X") == 0)
             {
-                transform.position = Vector3.SmoothDamp(transform.position, player.position + offsetRotation, ref velocity, smoothTime * 2);
+                var positionCamera = player.position - (player.forward * distance);
+                positionCamera = new Vector3(positionCamera.x, positionCamera.y + startY, positionCamera.z);
+                transform.position = Vector3.SmoothDamp(transform.position, positionCamera, ref velocity, smoothTime);
                 transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
 
-                if (Input.GetAxis("Mouse X") < 0)
+                timer += Time.deltaTime;
+                if (timer > timerBeforeTrigger)
                 {
-                    offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
-                    transform.position = Vector3.SmoothDamp(transform.position, player.position + offsetRotation, ref velocity, smoothTime * 4);
-                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+                    isMoving = true;
+                    timer = timerBeforeTrigger;
                 }
-                else if (Input.GetAxis("Mouse X") > 0)
-                {
-                    offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
-                    transform.position = Vector3.SmoothDamp(transform.position, player.position + offsetRotation, ref velocity, smoothTime * 4);
-                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
-                }
+                    
             }
+                
             else
             {
-                if(!cameraModeDelay)
+                if(isMoving)
                 {
-                    offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
+                    var positionCamera = player.position - (player.forward * distance);
+                    positionCamera = new Vector3(positionCamera.x, positionCamera.y + startY, positionCamera.z);
+                    transform.position = Vector3.SmoothDamp(transform.position, positionCamera, ref velocity, smoothTime);
+                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+
+                    offsetRotation = positionCamera;
+
+                    isMoving = false;
+                    timer = 0;
                 }
+                var newPosition = player.position + (offsetRotation.normalized * distance);
+                transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
+                offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;                
+                transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
             }
         }
     }
