@@ -14,7 +14,6 @@ public class Camera_Behavior : MonoBehaviour
     public float offsetVerticalFocus;
     public Vector3 offsetVertical;
 
-    float yRotation;
     public float threesholdMovement;
 
     public float zoomForce;
@@ -41,8 +40,8 @@ public class Camera_Behavior : MonoBehaviour
     public float distance;
     public float startY;
 
-    public bool isMoving;
-    public float timer, timerBeforeTrigger;
+    /*public bool isMoving;
+    public float timer, timerBeforeTrigger;*/
 
     public void Start()
     {
@@ -120,56 +119,61 @@ public class Camera_Behavior : MonoBehaviour
 
         //TODO: Can move to the vertical
         //TODO: Don't use the clamp method anymore, but use collision detection of the floor
-        //TODO: Does Get Component are really needed
+        //TODO: Does Get Component are really needed ??
         player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = Camera.main.transform;
 
         if (player.GetComponent<Rigidbody>().velocity.magnitude <= threesholdMovement)
         {
-            /*player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = player.transform;
+            //TODO : Use the bool isMoving here
+            player.GetComponent<UnityStandardAssets.Characters.ThirdPerson.ThirdPersonUserControl>().m_Cam = player.transform;
             offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
             offsetVertical = Quaternion.AngleAxis(Input.GetAxis("Mouse Y") * turnSpeed, Vector3.left) * offsetVertical;
             offsetVertical.y = Mathf.Clamp(offsetVertical.y, 0.1f, 15);
 
             var newPosition = new Vector3(player.position.x + offsetRotation.x, offsetVertical.y, player.position.z + offsetRotation.z);
             transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
-            transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));*/
+            transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
         }
         else
         {
             if (Input.GetAxis("Mouse X") == 0)
             {
                 var positionCamera = player.position - (player.forward * distance);
-                positionCamera = new Vector3(positionCamera.x, positionCamera.y + startY, positionCamera.z);
+                positionCamera = new Vector3(positionCamera.x, offsetRotation.y, positionCamera.z);
                 transform.position = Vector3.SmoothDamp(transform.position, positionCamera, ref velocity, smoothTime);
                 transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
 
-                timer += Time.deltaTime;
+                offsetRotation = positionCamera;
+                /*timer += Time.deltaTime;
                 if (timer > timerBeforeTrigger)
                 {
                     isMoving = true;
                     timer = timerBeforeTrigger;
-                }
-                    
+                }      */             
             }
                 
             else
             {
-                if(isMoving)
+                /*if (isMoving)
                 {
                     var positionCamera = player.position - (player.forward * distance);
                     positionCamera = new Vector3(positionCamera.x, positionCamera.y + startY, positionCamera.z);
-                    transform.position = Vector3.SmoothDamp(transform.position, positionCamera, ref velocity, smoothTime);
+                    transform.position = Vector3.SmoothDamp(transform.position, positionCamera, ref velocity, smoothTime * 0);
                     transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
 
                     offsetRotation = positionCamera;
 
-                    isMoving = false;
                     timer = 0;
+                    isMoving = false;
                 }
-                var newPosition = player.position + (offsetRotation.normalized * distance);
-                transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);
-                offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;                
-                transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+                else
+                {*/
+                    var newPosition = player.position + (offsetRotation.normalized * distance);
+                    offsetRotation = Quaternion.AngleAxis(Input.GetAxis("Mouse X") * turnSpeed, Vector3.up) * offsetRotation;
+                    newPosition = new Vector3(newPosition.x, offsetRotation.y, newPosition.z);
+                    transform.position = Vector3.SmoothDamp(transform.position, newPosition, ref velocity, smoothTime);       
+                    transform.LookAt(new Vector3(player.position.x, player.position.y + offsetVerticalFocus, player.position.z));
+                //}
             }
         }
     }
